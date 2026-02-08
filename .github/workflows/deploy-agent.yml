@@ -89,8 +89,9 @@ jobs:
             "commands": [
               "aws s3 cp s3://${{ steps.resources.outputs.bucket }}/deploy/agent.zip /tmp/agent.zip --region us-east-1",
               "rm -rf /tmp/agent-extract && mkdir -p /tmp/agent-extract && cd /tmp/agent-extract && unzip -o -q /tmp/agent.zip",
-              "cd /tmp/agent-extract/agent && docker build -t bills-agent .",
               "docker stop agent 2>/dev/null; docker rm agent 2>/dev/null; true",
+              "docker rmi bills-agent 2>/dev/null || true",
+              "cd /tmp/agent-extract/agent && docker build --no-cache -t bills-agent .",
               "aws ssm get-parameters-by-path --path ${{ steps.resources.outputs.ssm_prefix }} --with-decryption --region us-east-1 --no-cli-pager --output json | python3 -c \"import json,sys; d=json.load(sys.stdin); [print(p.get('Name','').split('/')[-1]+'='+str(p.get('Value',''))) for p in d.get('Parameters',[])]\" > /tmp/agent.env",
               "grep -q '^OPENAI_API_KEY=' /tmp/agent.env || (echo 'ERROR: OPENAI_API_KEY not in SSM at ${{ steps.resources.outputs.ssm_prefix }}' && exit 1)",
               "docker run -d --name agent --restart unless-stopped --network host -e AWS_REGION=us-east-1 -e AWS_DEFAULT_REGION=us-east-1 --env-file /tmp/agent.env bills-agent",
