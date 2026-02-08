@@ -17,7 +17,6 @@ COPY agent/ agent/
 COPY tools/ tools/
 COPY db/ db/
 COPY extractors/ extractors/
-COPY data/ data/
 COPY logging_config.py .
 
 RUN chown -R appuser:appuser /app
