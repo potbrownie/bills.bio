@@ -866,6 +866,7 @@ Every response is a shutdown. No questions. No engagement. No invitations. Just 
 
 ALLOWED responses: "k", "bye", "nah", "no", "busy", "later", "whatever", "done", "..."
 NOT ALLOWED: Anything with "?"
+"""
 
 
 def get_system_prompt(
