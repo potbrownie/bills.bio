@@ -1,0 +1,96 @@
+<p>Every successful founder has a graveyard of mistakes behind them. Mine is no different. After starting VOLT at 16, scaling Smarcycle to Queensland's leading ebike rental service, and now building service robots at Instinct, I've learned more from what went wrong than what went right.</p>
+
+<p>Here's what I wish someone had told me.</p>
+
+<h2>The allure of premature scaling</h2>
+
+<p>When VOLT started making six figures in its first year, I made the classic mistake: I thought revenue meant we were ready to scale. We weren't.</p>
+
+<p>I hired too fast, expanded into markets we didn't understand, and built infrastructure for a company ten times our size. The overhead nearly killed us. Revenue is vanity, profit is sanity, but <strong>cash flow is reality</strong>.</p>
+
+<p>The lesson: Growth for growth's sake is a trap. Scale when your unit economics work, not when investors are impressed by your hockey stick.</p>
+
+<h2>Building for everyone means building for no one</h2>
+
+<p>With Anystay, we tried to be everything to everyone—backpackers, business travelers, families, digital nomads. Each segment needed different features, different messaging, different everything.</p>
+
+<p>We diluted our product trying to serve every use case. The best companies solve one problem exceptionally well, then expand. We tried to solve ten problems adequately.</p>
+
+<blockquote>The difference between good companies and great companies is focus. Great companies say no to almost everything.</blockquote>
+
+<p>Your first product should make a small group of people love you, not make everyone think you're fine.</p>
+
+<h2>Ignoring the boring stuff</h2>
+
+<p>Legal structures, accounting systems, HR processes—I ignored all of it in the early days. "We'll figure it out later," I thought.</p>
+
+<p>Later came faster than expected. Investor due diligence, tax audits, employee disputes—all the boring stuff became expensive emergencies because we didn't build proper foundations.</p>
+
+<p>The most successful founders I know spend 30% of their time on "boring" operations. It's not sexy, but neither is cleaning up a legal mess that could've been avoided.</p>
+
+<h2>Mistaking activity for progress</h2>
+
+<p>In the early days of Smarcycle, I was in back-to-back meetings, responding to every email within minutes, saying yes to every opportunity. I was busy, but we weren't moving forward.</p>
+
+<p>Being busy is easy. Making progress is hard. Progress means moving toward a specific goal, not just doing things.</p>
+
+<ul>
+  <li>Busy: Attending 5 networking events per week</li>
+  <li>Progress: Having coffee with 2 people who can actually help you this quarter</li>
+</ul>
+
+<ul>
+  <li>Busy: Redesigning your landing page for the third time</li>
+  <li>Progress: Talking to 50 users about why they churned</li>
+</ul>
+
+<p>Ask yourself daily: "Did I make measurable progress on what matters most?" If not, you're just busy.</p>
+
+<h2>Hiring for skills over values</h2>
+
+<p>Your first ten hires define your culture. I learned this the hard way.</p>
+
+<p>We hired brilliant people who didn't share our values. They were talented but toxic. They shipped features but destroyed team morale. They hit their KPIs but made everyone around them worse.</p>
+
+<p>Skills can be taught. Values can't. A cultural mismatch will cost you more than a skill gap ever will.</p>
+
+<h2>Optimizing too early</h2>
+
+<p>We spent weeks debating whether to use React or Vue, months perfecting our color palette, quarters building features nobody asked for.</p>
+
+<p>Premature optimization is procrastination in disguise. Perfect is the enemy of shipped.</p>
+
+<p>Your first product should embarrass you. If it doesn't, you waited too long. Ship something ugly that works, then iterate based on real user feedback.</p>
+
+<h2>Forgetting that people buy outcomes, not features</h2>
+
+<p>At VOLT, we obsessed over battery life, motor power, and frame geometry. Our customers just wanted to get to work without sweating.</p>
+
+<p>Nobody buys a 1000W motor. They buy freedom, convenience, and arriving fresh. We spent years optimizing the wrong things.</p>
+
+<p>Your marketing should talk about outcomes. Your product should deliver outcomes. Features are just the how, not the why.</p>
+
+<h2>Not building in public</h2>
+
+<p>I kept everything secret for too long. Stealth mode for two years, perfect pitch deck, big reveal—then crickets.</p>
+
+<p>The companies winning today build in public. They share their journey, their metrics, their failures. They build an audience before they need customers.</p>
+
+<p>Your story is your marketing. Don't wait until launch to start telling it.</p>
+
+<h2>What I'd do differently</h2>
+
+<p>If I were starting over today:</p>
+
+<ul>
+  <li>Start with one customer persona, solve their biggest pain point exceptionally well</li>
+  <li>Build the boring operational foundations from day one</li>
+  <li>Ship faster, iterate constantly, be okay with ugly v1s</li>
+  <li>Hire slowly, fire faster, culture above all else</li>
+  <li>Focus ruthlessly, say no to almost everything</li>
+  <li>Build in public, share the journey</li>
+</ul>
+
+<p>Building a company is hard. But most failures aren't from lack of talent or bad ideas—they're from repeating avoidable mistakes.</p>
+
+<p>Learn from mine. Do better.</p>

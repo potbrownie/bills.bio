@@ -1,0 +1,45 @@
+# Distribution with ONLY custom origin (no S3) - to test if Distribution validates.
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFront with single custom origin only"
+
+Parameters:
+  AgentOriginDomain:
+    Type: String
+    Default: "agent.bills.bio"
+
+Resources:
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      Comment: "Test custom origin only - ASCII only"
+      Enabled: true
+      Origins:
+        - Id: CustomOrigin
+          DomainName: !Ref AgentOriginDomain
+          CustomOriginConfig:
+            HTTPSPort: 443
+            OriginProtocolPolicy: "https-only"
+            OriginSSLProtocols:
+              - "TLSv1.2"
+      DefaultCacheBehavior:
+        TargetOriginId: CustomOrigin
+        ViewerProtocolPolicy: redirect-http-to-https
+        Compress: true
+        AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+        CachedMethods:
+          - GET
+          - HEAD
+        ForwardedValues:
+          QueryString: false
+          Cookies:
+            Forward: none
+        MinTTL: 0
+        DefaultTTL: 86400
+        MaxTTL: 31536000
+
+Outputs:
+  DistributionDomainName:
+    Value: !GetAtt Distribution.DomainName

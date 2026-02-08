@@ -1,0 +1,176 @@
+# S3 + CloudFront for bills.bio: static Next.js in S3, /api/chat* to agent with path rewrite.
+# Uses DistributionConfig (required by AWS::CloudFront::Distribution). OAC for S3 per AWS best practice.
+# Deploy: aws cloudformation deploy --template-file deploy/s3-cloudfront.yaml --stack-name bills-bio-s3 \
+#   --parameter-overrides AgentOriginDomain=agent.bills.bio
+# Then: aws s3 sync out/ s3://StaticBucketName/ --delete
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "bills.bio - S3 static + CloudFront; /api/chat* to agent origin with path rewrite."
+
+Parameters:
+  AgentOriginDomain:
+    Type: String
+    Description: "Agent hostname (e.g. agent.bills.bio or ALB DNS). No protocol."
+  ViewerProtocolPolicy:
+    Type: String
+    Default: "redirect-to-https"
+    AllowedValues:
+      - "allow-all"
+      - "redirect-to-https"
+      - "https-only"
+  ACMCertificateArn:
+    Type: String
+    Default: ""
+    Description: "Optional. ACM cert ARN (us-east-1) for custom domain."
+  Aliases:
+    Type: String
+    Default: ""
+    Description: "Optional. Comma-separated CNAMEs (e.g. bills.bio,www.bills.bio)."
+
+Conditions:
+  UseCustomDomain: !Not [!Equals [!Ref ACMCertificateArn, ""]]
+  HasAliases: !Not [!Equals [!Ref Aliases, ""]]
+
+Resources:
+  StaticBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "bills-bio-static-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: bills-bio-s3-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+        Description: "OAC for bills.bio static bucket"
+
+  PathRewriteFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: bills-bio-api-rewrite
+      AutoPublish: true
+      FunctionConfig:
+        Comment: "Rewrite /api/chat to /chat for agent origin"
+        Runtime: cloudfront-js-1.0
+      FunctionCode: |
+        function handler(event) {
+          var request = event.request;
+          var uri = request.uri;
+          if (uri === '/api/chat/stream' || uri.startsWith('/api/chat/stream?')) {
+            request.uri = uri.replace('/api/chat/stream', '/chat/stream');
+          } else if (uri === '/api/chat' || uri.startsWith('/api/chat?')) {
+            request.uri = uri.replace('/api/chat', '/chat');
+          }
+          return request;
+        }
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: "bills.bio - S3 static + agent for /api/chat*"
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Aliases: !If [UseCustomDomain, !If [HasAliases, !Split [",", !Ref Aliases], !Ref "AWS::NoValue"], !Ref "AWS::NoValue"]
+        ViewerCertificate: !If
+          - UseCustomDomain
+          - AcmCertificateArn: !Ref ACMCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt StaticBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !GetAtt OriginAccessControl.Id
+          - Id: AgentOrigin
+            DomainName: !Ref AgentOriginDomain
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: !Ref ViewerProtocolPolicy
+          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+        CacheBehaviors:
+          - PathPattern: "/api/chat*"
+            TargetOriginId: AgentOrigin
+            ViewerProtocolPolicy: !Ref ViewerProtocolPolicy
+            CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+            Compress: false
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            FunctionAssociations:
+              - EventType: viewer-request
+                FunctionARN: !GetAtt PathRewriteFunction.FunctionARN
+
+  StaticBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DependsOn: Distribution
+    Properties:
+      Bucket: !Ref StaticBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFront
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${StaticBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}"
+
+Outputs:
+  StaticBucketName:
+    Description: "S3 bucket for static site (upload out/ here)"
+    Value: !Ref StaticBucket
+    Export:
+      Name: !Sub "${AWS::StackName}-StaticBucketName"
+  DistributionId:
+    Description: "CloudFront distribution ID (for invalidations)"
+    Value: !Ref Distribution
+    Export:
+      Name: !Sub "${AWS::StackName}-DistributionId"
+  DistributionDomainName:
+    Description: "CloudFront domain name"
+    Value: !GetAtt Distribution.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-DomainName"
+  URL:
+    Description: "Distribution URL (HTTPS)"
+    Value: !Sub ["https://${Domain}", { Domain: !GetAtt Distribution.DomainName }]
+    Export:
+      Name: !Sub "${AWS::StackName}-URL"

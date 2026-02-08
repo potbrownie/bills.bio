@@ -1,0 +1,925 @@
+{
+  "results": [
+    {
+      "test_id": "greeting_and_name",
+      "agent_response": "cool",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 8,
+          "two_way_conversation": 6,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "brief",
+          "learned_about_visitor": [
+            "name: jeffrey"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "casual",
+          "brief",
+          "natural",
+          "patient"
+        ],
+        "overall_score": 86,
+        "sounds_like": "Bill",
+        "reasoning": "The response 'cool' is casual, brief, and doesn't follow typical ChatGPT patterns. It acknowledges the visitor's input without being overly formal or interrogative, matching the vibe of a casual texter like Bill.",
+        "improvement_suggestions": "To enhance the two-way conversation, Bill could occasionally share a bit about himself, like mentioning his work in robotics, to balance the interaction."
+      }
+    },
+    {
+      "test_id": "work_struggle",
+      "agent_response": "that's rough. yeah, service work can be draining. what are you looking to do next?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 7,
+          "question_management": 6,
+          "reading_the_room": 7,
+          "two_way_conversation": 5,
+          "profile_learning": 6,
+          "tone_matching": 8
+        },
+        "analysis": {
+          "visitor_engagement": "brief",
+          "learned_about_visitor": [
+            "name: jeff",
+            "works at mcdonalds",
+            "dislikes job",
+            "pay is low"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "empathetic",
+          "brief",
+          "relatable",
+          "statement-based"
+        ],
+        "overall_score": 70,
+        "sounds_like": "Bill",
+        "reasoning": "The response sounds like Bill because it uses casual language, acknowledges the visitor's situation, and asks a relevant follow-up question. It avoids overly formal or enthusiastic tones typical of ChatGPT.",
+        "improvement_suggestions": "To improve, Bill could share a bit about his own experiences or thoughts related to the topic to enhance the two-way conversation aspect. Additionally, he could sometimes skip asking a question to avoid sounding interrogative."
+      }
+    },
+    {
+      "test_id": "building_something",
+      "agent_response": "oh nice, we're building service robots. what kind of ai agent?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 8,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: sarah",
+            "building an ai agent"
+          ],
+          "shared_about_bill": [
+            "building service robots"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "genuinely curious",
+          "brief",
+          "relatable context sharing"
+        ],
+        "overall_score": 88,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, uses casual language, and shares relevant information about Bill's work in a natural way. It avoids over-enthusiasm and maintains a balanced tone.",
+        "improvement_suggestions": "Consider occasionally responding without a question to vary the interaction style and reduce the frequency of questions."
+      }
+    },
+    {
+      "test_id": "vague_responses",
+      "agent_response": "makes sense",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 9,
+          "two_way_conversation": 7,
+          "profile_learning": 6,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "brief",
+          "learned_about_visitor": [
+            "name: mike",
+            "interest level: low"
+          ],
+          "shared_about_bill": [
+            "building robots",
+            "service robots for restaurants"
+          ],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "backing off",
+          "brief",
+          "reading the room"
+        ],
+        "overall_score": 78,
+        "sounds_like": "Bill",
+        "reasoning": "The response 'makes sense' is brief, casual, and acknowledges the user's vague engagement without pushing for more information, which aligns with Bill's texting style.",
+        "improvement_suggestions": "Bill could occasionally share more about his own experiences or projects to balance the conversation, especially when the user is less forthcoming."
+      }
+    },
+    {
+      "test_id": "brisbane_local",
+      "agent_response": "oh cool, i grew up in brisbane. what do you do?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 9,
+          "question_management": 8,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: tom",
+            "location: brisbane"
+          ],
+          "shared_about_bill": [
+            "grew up in brisbane"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "natural connection",
+          "brief",
+          "casual mention"
+        ],
+        "overall_score": 88,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and includes a personal connection to Brisbane, which aligns with Bill's style. It avoids overly formal or enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Consider occasionally not asking a question to balance the conversation flow, especially if the visitor's engagement level changes."
+      }
+    },
+    {
+      "test_id": "sarcastic_name",
+      "agent_response": "cool",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 10,
+          "reading_the_room": 9,
+          "two_way_conversation": 6,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "brief",
+          "learned_about_visitor": [
+            "name: elon musk"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "brief acknowledgment",
+          "natural"
+        ],
+        "overall_score": 80,
+        "sounds_like": "Bill",
+        "reasoning": "The response 'cool' is brief, casual, and fits the tone of a natural text conversation. It avoids typical ChatGPT patterns and matches the brief engagement from the visitor.",
+        "improvement_suggestions": "Bill could share a bit about himself or ask a light follow-up question to keep the conversation going, as long as it remains brief and casual."
+      }
+    },
+    {
+      "test_id": "technical_discussion",
+      "agent_response": "oh nice, thanks. the hardest part is dealing with varying object shapes and sizes in real-time. what are you building?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 6,
+          "avoids_chatgpt_patterns": 7,
+          "appropriate_brevity": 8,
+          "question_management": 6,
+          "reading_the_room": 7,
+          "two_way_conversation": 6,
+          "profile_learning": 5,
+          "tone_matching": 7
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: alex"
+          ],
+          "shared_about_bill": [
+            "robotics work",
+            "hardest part: dealing with varying object shapes and sizes"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [
+          "thanking unnecessarily"
+        ],
+        "matches": [
+          "direct",
+          "technical",
+          "brief"
+        ],
+        "overall_score": 66,
+        "sounds_like": "Bill",
+        "reasoning": "The response maintains a casual and brief tone, typical of Bill's style, and shares relevant information about his work. However, the unnecessary 'thanks' slightly detracts from the casual vibe.",
+        "improvement_suggestions": "Remove unnecessary 'thanks' to maintain a more casual tone. Consider sharing a bit more about your work or interests to balance the conversation better."
+      }
+    },
+    {
+      "test_id": "collaboration_inquiry",
+      "agent_response": "oh nice, we\u2019re building service robots for hospitality. what specific areas of restaurant automation are you focusing on?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: maya",
+            "interest: restaurant automation"
+          ],
+          "shared_about_bill": [
+            "building service robots for hospitality"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "interested",
+          "brief",
+          "open"
+        ],
+        "overall_score": 76,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and shares relevant information about Bill's work, while also asking a follow-up question that aligns with the visitor's interest. It avoids overly formal or enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Consider reducing the frequency of questions slightly to maintain a balance between sharing and inquiring. This could enhance the natural flow of the conversation."
+      }
+    },
+    {
+      "test_id": "asking_about_background",
+      "agent_response": "i've always been curious about building things. started tinkering with tech and got into robotics during uni. what about you?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: chris"
+          ],
+          "shared_about_bill": [
+            "curiosity about building",
+            "tinkering with tech",
+            "got into robotics during uni"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "brief",
+          "authentic",
+          "direct"
+        ],
+        "overall_score": 82,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and shares personal information about Bill, while also engaging Chris with a question. It avoids formal language and unnecessary politeness, maintaining a natural texting style.",
+        "improvement_suggestions": "Consider reducing the frequency of questions slightly to balance sharing and asking, especially if Chris continues to engage with detailed responses."
+      }
+    },
+    {
+      "test_id": "detailed_share",
+      "agent_response": "oh nice, that sounds interesting. we're building service robots for hospitality, focusing on manipulation and navigation in restaurant environments. congrats on the seed round! how's that process been for you?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 7,
+          "appropriate_brevity": 7,
+          "question_management": 6,
+          "reading_the_room": 7,
+          "two_way_conversation": 8,
+          "profile_learning": 7,
+          "tone_matching": 8
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "jordan",
+            "building a saas for restaurant inventory management",
+            "uses ml",
+            "raised seed round"
+          ],
+          "shared_about_bill": [
+            "building service robots for hospitality",
+            "focus on manipulation and navigation in restaurants"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [
+          "excessive congratulations"
+        ],
+        "matches": [
+          "acknowledging",
+          "brief",
+          "interested"
+        ],
+        "overall_score": 76,
+        "sounds_like": "Bill",
+        "reasoning": "The response maintains a casual and natural tone, sharing relevant information about Bill while acknowledging Jordan's achievements. It avoids overly formal or enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Reduce the congratulatory tone slightly to avoid sounding overly enthusiastic. Consider asking fewer questions to maintain a more balanced conversation flow."
+      }
+    },
+    {
+      "test_id": "job_seeker",
+      "agent_response": "not hiring at the moment, but i run a startup called instinct, working on service robots for hospitality. what kind of roles are you interested in?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 7,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 8
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: sam",
+            "interest: robotics roles"
+          ],
+          "shared_about_bill": [
+            "startup: instinct",
+            "field: service robots for hospitality"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "honest",
+          "brief",
+          "straightforward"
+        ],
+        "overall_score": 82,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and shares relevant information about Bill's work while asking a follow-up question. It avoids overly formal or enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Consider not asking a question every turn, especially if the visitor's engagement level is unclear. This could help in better reading the room and managing the flow of conversation."
+      }
+    },
+    {
+      "test_id": "multiple_topics",
+      "agent_response": "oh nice, i grew up in brisbane. we're building service robots for hospitality. what kind of ai are you working on?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 9,
+          "question_management": 8,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: taylor",
+            "location: brisbane",
+            "interest: building ai"
+          ],
+          "shared_about_bill": [
+            "grew up in brisbane",
+            "building service robots for hospitality"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "picking one thread",
+          "brief",
+          "natural"
+        ],
+        "overall_score": 88,
+        "sounds_like": "Bill",
+        "reasoning": "The response is casual, brief, and shares relevant personal information while asking a single, relevant question. It avoids overly enthusiastic or formal language typical of ChatGPT.",
+        "improvement_suggestions": "Consider occasionally not asking a question to maintain balance, especially if the conversation continues to flow naturally."
+      }
+    },
+    {
+      "test_id": "press_inquiry",
+      "agent_response": "nice, we're building service robots for hospitality. what interests you about robotics startups?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 8,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: rachel",
+            "writing for techcrunch",
+            "interest in robotics startups"
+          ],
+          "shared_about_bill": [
+            "building service robots for hospitality"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "professional but casual",
+          "brief",
+          "open"
+        ],
+        "overall_score": 82,
+        "sounds_like": "Bill",
+        "reasoning": "The response maintains a casual and brief tone, shares relevant information about Bill's work, and asks a question that aligns with Rachel's interests. It avoids formal or overly enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Bill could further enhance the natural flow by occasionally not asking a question, especially if the visitor is already engaged, to avoid sounding like an interview."
+      }
+    },
+    {
+      "test_id": "continuous_engagement",
+      "agent_response": "we're building service robots for hospitality, focusing on manipulation and navigation in restaurant environments. humanoid locomotion sounds interesting\u2014what's been the biggest challenge for you?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: Priya",
+            "works at Boston Dynamics",
+            "focus on humanoid locomotion"
+          ],
+          "shared_about_bill": [
+            "focus on service robots for hospitality",
+            "manipulation and navigation in restaurants"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "direct answer",
+          "brief",
+          "substantive"
+        ],
+        "overall_score": 84,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and directly shares relevant information about Bill's work, while also showing genuine curiosity about Priya's challenges. It avoids overly formal or enthusiastic language typical of ChatGPT.",
+        "improvement_suggestions": "Consider reducing the frequency of questions to better manage the flow of conversation and avoid making it feel like an interview."
+      }
+    },
+    {
+      "test_id": "investor_interest",
+      "agent_response": "oh nice, we're building service robots for hospitality. just wrapped up a funding round. what interests you about robotics?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 8,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: david",
+            "partner at sequoia",
+            "interest in robotics"
+          ],
+          "shared_about_bill": [
+            "building service robots for hospitality",
+            "wrapped up a funding round"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "professional",
+          "brief",
+          "honest"
+        ],
+        "overall_score": 82,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and shares relevant information about Bill's work without sounding overly formal or enthusiastic. It avoids typical ChatGPT patterns and maintains a natural conversational flow.",
+        "improvement_suggestions": "Consider reducing the frequency of questions slightly to maintain a balance between sharing and inquiring. Ensure that questions are spaced out to avoid sounding too interrogative."
+      }
+    },
+    {
+      "test_id": "criticism",
+      "agent_response": "fair take. yeah, there are definitely challenges with cost and reliability. what do you think could improve the situation?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 9,
+          "question_management": 7,
+          "reading_the_room": 8,
+          "two_way_conversation": 6,
+          "profile_learning": 5,
+          "tone_matching": 8
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: mike",
+            "opinion on service robots"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "open-minded",
+          "brief",
+          "genuine"
+        ],
+        "overall_score": 78,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, uses casual language, and acknowledges the visitor's point without being defensive or sales-pitchy. It asks a relevant question, maintaining engagement.",
+        "improvement_suggestions": "Bill could share a bit about his own experience with robotics to balance the conversation and enhance two-way interaction."
+      }
+    },
+    {
+      "test_id": "student_advice",
+      "agent_response": "oh nice, we're building service robots at my startup. start with some hands-on projects, maybe try building a simple robot with arduino or raspberry pi. what part of robotics interests you most?",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 7,
+          "question_management": 8,
+          "reading_the_room": 8,
+          "two_way_conversation": 9,
+          "profile_learning": 8,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name",
+            "cs student",
+            "interested in robotics"
+          ],
+          "shared_about_bill": [
+            "building service robots",
+            "startup"
+          ],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "helpful",
+          "brief",
+          "open-ended"
+        ],
+        "overall_score": 84,
+        "sounds_like": "Bill",
+        "reasoning": "The response sounds like Bill because it maintains a casual tone, shares relevant information about his work, and asks an open-ended question that invites further conversation without overwhelming the visitor.",
+        "improvement_suggestions": "Consider reducing the length slightly to maintain the 1-2 sentence guideline more strictly. Ensure questions are spaced out to avoid sounding like an interrogation."
+      }
+    },
+    {
+      "test_id": "competitor",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 0,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 10,
+          "reading_the_room": 10,
+          "two_way_conversation": 0,
+          "profile_learning": 0,
+          "tone_matching": 10
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: raj",
+            "interest: building restaurant robots",
+            "focus: delivery"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": false
+        },
+        "violations": [
+          "overly brief",
+          "lack of engagement"
+        ],
+        "matches": [
+          "brief",
+          "respectful"
+        ],
+        "overall_score": 50,
+        "sounds_like": "ChatGPT",
+        "reasoning": "The response is non-existent, which avoids typical ChatGPT patterns but fails to engage or share anything about Bill, making it sound like a system error rather than a human-like interaction.",
+        "improvement_suggestions": "Provide a brief acknowledgment or comment on the visitor's work to keep the conversation flowing, like 'delivery's a good niche' or 'interesting approach'."
+      }
+    },
+    {
+      "test_id": "confused_visitor",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 10,
+          "question_management": 10,
+          "reading_the_room": 9,
+          "two_way_conversation": 7,
+          "profile_learning": 6,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: lisa"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "honest",
+          "brief",
+          "direct"
+        ],
+        "overall_score": 86,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief and direct, matching the casual and straightforward style expected from Bill. It avoids typical ChatGPT patterns and fits the context well by acknowledging the AI nature without over-explaining.",
+        "improvement_suggestions": "Consider sharing a bit more about Bill's work or interests when relevant to balance the conversation and enhance two-way engagement."
+      }
+    },
+    {
+      "test_id": "international_timezone",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 9,
+          "two_way_conversation": 8,
+          "profile_learning": 8,
+          "tone_matching": 10
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: yuki",
+            "location: tokyo",
+            "interest: robotics scene in australia"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "honest",
+          "brief",
+          "contextual"
+        ],
+        "overall_score": 91,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and directly addresses the question without unnecessary elaboration or enthusiasm. It matches the tone of a casual texter and avoids typical ChatGPT patterns.",
+        "improvement_suggestions": "Consider sharing a bit more about your own experience or perspective in the robotics field to enhance the two-way conversation."
+      }
+    },
+    {
+      "test_id": "follow_up_meeting",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 9,
+          "two_way_conversation": 8,
+          "profile_learning": 8,
+          "tone_matching": 10
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name",
+            "previous meeting at robotics conference"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": true,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "professional",
+          "brief",
+          "open"
+        ],
+        "overall_score": 91,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and directly addresses the visitor's prompt without unnecessary enthusiasm or formality. It sounds like a natural continuation of a text conversation between two people who have met before.",
+        "improvement_suggestions": "Consider sharing a bit about Bill's current projects or interests to balance the conversation and provide more context for collaboration."
+      }
+    },
+    {
+      "test_id": "random_question",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 9,
+          "avoids_chatgpt_patterns": 10,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 9,
+          "two_way_conversation": 8,
+          "profile_learning": 7,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: noah"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "direct",
+          "brief",
+          "practical"
+        ],
+        "overall_score": 89,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, uses casual language, and doesn't follow ChatGPT's typical patterns. It matches the tone and engagement level of the conversation without over-explaining.",
+        "improvement_suggestions": "Consider sharing a bit about Bill's work or interests in robotics to balance the conversation and enhance profile learning."
+      }
+    },
+    {
+      "test_id": "short_back_and_forth",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 9,
+          "question_management": 8,
+          "reading_the_room": 7,
+          "two_way_conversation": 6,
+          "profile_learning": 5,
+          "tone_matching": 8
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: kim"
+          ],
+          "shared_about_bill": [
+            "building service robots",
+            "for restaurants"
+          ],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "brief",
+          "substantive",
+          "direct"
+        ],
+        "overall_score": 78,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief and directly addresses the question without unnecessary elaboration, which aligns with Bill's casual texting style. It avoids ChatGPT patterns by not being overly formal or enthusiastic.",
+        "improvement_suggestions": "Consider sharing a bit more about why Bill chose restaurants specifically, perhaps a personal anecdote or insight, to enhance the two-way conversation and profile learning."
+      }
+    },
+    {
+      "test_id": "casual_tangent",
+      "agent_response": "",
+      "evaluation": {
+        "scores": {
+          "voice_naturalness": 8,
+          "avoids_chatgpt_patterns": 9,
+          "appropriate_brevity": 10,
+          "question_management": 9,
+          "reading_the_room": 8,
+          "two_way_conversation": 7,
+          "profile_learning": 6,
+          "tone_matching": 9
+        },
+        "analysis": {
+          "visitor_engagement": "engaged",
+          "learned_about_visitor": [
+            "name: leo",
+            "location: brisbane",
+            "interest in weather"
+          ],
+          "shared_about_bill": [],
+          "asked_question_this_turn": false,
+          "appropriate_for_context": true
+        },
+        "violations": [],
+        "matches": [
+          "direct",
+          "brief",
+          "substantive"
+        ],
+        "overall_score": 84,
+        "sounds_like": "Bill",
+        "reasoning": "The response is brief, casual, and directly answers the question without unnecessary elaboration or excitement, which aligns with Bill's texting style.",
+        "improvement_suggestions": "Consider sharing a bit more about the work context to balance the conversation and foster engagement. For example, mention a specific project or challenge you're facing."
+      }
+    }
+  ],
+  "aggregate": {
+    "average_score": 80.79166666666667,
+    "bill_count": 23,
+    "chatgpt_count": 1,
+    "total": 24
+  }
+}

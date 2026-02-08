@@ -1,0 +1,299 @@
+# EC2 + ALB for bills.bio agent. Runs agent in Docker; loads secrets from SSM.
+# Deploy: aws cloudformation deploy --template-file deploy/ec2-agent.yaml --stack-name bills-bio-agent \
+#   --parameter-overrides GitRepoUrl=https://github.com/USER/bills.bio.git AgentCertificateArn=arn:aws:acm:REGION:ACCOUNT:certificate/ID AgentDomainName=agent.bills.bio
+# Then: create Route 53 A (alias) or CNAME for AgentDomainName -> ALB DNS (see output AgentALBDNSName).
+# Prerequisites: SSM parameters under /bills-bio/agent/ (OPENAI_API_KEY, SERPER_API_KEY, etc.) — run agent/scripts/setup_ssm.py.
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "bills.bio agent on EC2 behind ALB (HTTPS). Docker from git; SSM for secrets."
+
+Parameters:
+  GitRepoUrl:
+    Type: String
+    Description: "Git repo URL (e.g. https://github.com/user/bills.bio.git). Must contain agent/ with Dockerfile."
+  GitBranch:
+    Type: String
+    Default: "master"
+    Description: "Branch to clone (e.g. main, master). Must contain agent/ directory."
+  AgentCertificateArn:
+    Type: String
+    Description: "ACM certificate ARN (in this region) for the agent domain (e.g. agent.bills.bio). Request in ACM and validate via DNS."
+  AgentDomainName:
+    Type: String
+    Default: ""
+    Description: "Optional. Agent hostname for ALB (e.g. agent.bills.bio). Used for ALB listener; create Route 53 record to ALB DNS after deploy."
+  InstanceType:
+    Type: String
+    Default: "t3.small"
+    AllowedValues:
+      - "t3.micro"
+      - "t3.small"
+      - "t3.medium"
+    Description: "EC2 instance type."
+  SSMParameterPrefix:
+    Type: String
+    Default: "/bills-bio/agent/"
+    Description: "SSM parameter path prefix for agent secrets (USE_SSM=true)."
+
+Resources:
+  AgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  AgentRolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: AgentSSMAndLogs
+      Roles:
+        - !Ref AgentRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - ssm:GetParametersByPath
+              - ssm:GetParameters
+            Resource: !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SSMParameterPrefix}*"
+          - Effect: Allow
+            Action: kms:Decrypt
+            Resource: "*"
+            Condition:
+              StringEquals:
+                kms:CallerAccount: !Ref AWS::AccountId
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - elasticloadbalancing:RegisterTargets
+              - elasticloadbalancing:DeregisterTargets
+            Resource: "*"
+          - Effect: Allow
+            Action: s3:GetObject
+            Resource: !Sub "arn:aws:s3:::bills-bio-static-${AWS::AccountId}/*"
+
+  AgentInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref AgentRole
+
+  AgentSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Agent EC2 - 8000 from ALB, 22 for SSH"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          SourceSecurityGroupId: !Ref ALBSG
+          Description: "Agent from ALB"
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0"
+          Description: "SSH (restrict in production)"
+
+  ALBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "ALB - 443 and 80 from internet"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "0.0.0.0/0"
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: "0.0.0.0/0"
+
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+
+  PubSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: "10.0.1.0/24"
+      MapPublicIpOnLaunch: true
+
+  PubSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: "10.0.2.0/24"
+      MapPublicIpOnLaunch: true
+
+  IGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-igw"
+
+  AttachIGW:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref IGW
+
+  PubRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachIGW
+    Properties:
+      RouteTableId: !Ref PubRouteTable
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref IGW
+
+  PubSubnet1RouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PubSubnet1
+      RouteTableId: !Ref PubRouteTable
+
+  PubSubnet2RouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PubSubnet2
+      RouteTableId: !Ref PubRouteTable
+
+  AgentTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPC
+      Port: 8000
+      Protocol: HTTP
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckPath: /health
+      HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${AWS::StackName}-alb"
+      Type: application
+      Scheme: internet-facing
+      Subnets:
+        - !Ref PubSubnet1
+        - !Ref PubSubnet2
+      SecurityGroups:
+        - !Ref ALBSG
+
+  HTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref AgentCertificateArn
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AgentTargetGroup
+
+  HTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: "443"
+            Host: "#{host}"
+            Path: "/#{path}"
+            Query: "#{query}"
+            StatusCode: HTTP_301
+
+  AgentInstance:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - HTTPSListener
+    Properties:
+      ImageId: !Sub "{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64}}"
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref AgentInstanceProfile
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "0"
+          GroupSet:
+            - !Ref AgentSG
+          SubnetId: !Ref PubSubnet1
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash
+            set -e
+            yum update -y
+            yum install -y docker git
+            systemctl enable docker && systemctl start docker
+            git clone --branch ${Branch} ${RepoUrl} /app/repo
+            cd /app/repo/agent
+            docker build -t bills-agent .
+            docker run -d --name agent --restart unless-stopped -p 8000:8000 \
+              -e USE_SSM=true \
+              -e SSM_PARAMETER_PREFIX=${SSMPrefix} \
+              bills-agent
+            # Register this instance with the ALB target group
+            INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+            aws elbv2 register-targets --target-group-arn ${TargetGroupArn} --targets Id="$INSTANCE_ID",Port=8000 --region ${Region} || true
+          - RepoUrl: !Ref GitRepoUrl
+            Branch: !Ref GitBranch
+            SSMPrefix: !Ref SSMParameterPrefix
+            TargetGroupArn: !Ref AgentTargetGroup
+            Region: !Ref AWS::Region
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-agent"
+
+Outputs:
+  AgentALBDNSName:
+    Description: "ALB DNS name. Create CNAME/alias AgentDomainName -> this for HTTPS."
+    Value: !GetAtt ALB.DNSName
+    Export:
+      Name: !Sub "${AWS::StackName}-ALBDNSName"
+  AgentALBHostedZoneId:
+    Description: "ALB hosted zone ID (for Route 53 alias)."
+    Value: !GetAtt ALB.CanonicalHostedZoneID
+    Export:
+      Name: !Sub "${AWS::StackName}-ALBHostedZoneId"
+  AgentURL:
+    Description: "Agent URL (HTTPS) — use after Route 53 points AgentDomainName here."
+    Value: !Sub "https://${ALB.DNSName}"
+  InstanceId:
+    Description: "EC2 instance ID (for SSH/SSM Session Manager)."
+    Value: !Ref AgentInstance
+    Export:
+      Name: !Sub "${AWS::StackName}-InstanceId"

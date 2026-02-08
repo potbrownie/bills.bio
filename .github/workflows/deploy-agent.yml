@@ -1,0 +1,161 @@
+# Deploy Python agent to EC2 on push to main (when agent/ changes).
+# Add GitHub secrets: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+# Prerequisites: EC2 stack (bills-bio-agent), S3 stack (bills-bio-s3), SSM parameters
+
+name: Deploy agent
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/agent/**"
+      - ".github/workflows/deploy-agent.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Get deployment resources
+        id: resources
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances --region us-east-1 \
+            --filters "Name=tag:aws:cloudformation:stack-name,Values=bills-bio-agent" "Name=instance-state-name,Values=running" \
+            --query 'Reservations[0].Instances[0].InstanceId' --output text)
+          
+          TG_ARN=$(aws elbv2 describe-target-groups --region us-east-1 \
+            --query "TargetGroups[?contains(TargetGroupName,'bills') && contains(TargetGroupName,'Agent')].TargetGroupArn" --output text | head -1)
+          
+          BUCKET=$(aws cloudformation describe-stacks --region us-east-1 --stack-name bills-bio-s3 \
+            --query 'Stacks[0].Outputs[?OutputKey==`StaticBucketName`].OutputValue' --output text)
+          
+          SSM_PREFIX=$(aws cloudformation describe-stacks --stack-name bills-bio-agent --region us-east-1 \
+            --query 'Stacks[0].Parameters[?ParameterKey==`SSMParameterPrefix`].ParameterValue' --output text | head -1)
+          SSM_PREFIX="${SSM_PREFIX:-/bills-bio/agent/}"
+          SSM_PREFIX="${SSM_PREFIX%/}/"
+          
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+          echo "target_group_arn=$TG_ARN" >> $GITHUB_OUTPUT
+          echo "bucket=$BUCKET" >> $GITHUB_OUTPUT
+          echo "ssm_prefix=$SSM_PREFIX" >> $GITHUB_OUTPUT
+          
+          echo "Instance: $INSTANCE_ID"
+          echo "Target group: $TG_ARN"
+          echo "Bucket: $BUCKET"
+          echo "SSM prefix: $SSM_PREFIX"
+
+      - name: Verify resources exist
+        run: |
+          if [ -z "${{ steps.resources.outputs.instance_id }}" ] || [ "${{ steps.resources.outputs.instance_id }}" = "None" ]; then
+            echo "Error: No running EC2 instance found for stack bills-bio-agent."
+            exit 1
+          fi
+          if [ -z "${{ steps.resources.outputs.target_group_arn }}" ]; then
+            echo "Error: No target group found for bills-bio-agent."
+            exit 1
+          fi
+          if [ -z "${{ steps.resources.outputs.bucket }}" ]; then
+            echo "Error: Stack bills-bio-s3 not found or no StaticBucketName output."
+            exit 1
+          fi
+
+      - name: Package agent
+        run: |
+          echo "Creating agent.zip from apps/agent/ ..."
+          cd apps
+          zip -r -q /tmp/agent.zip agent/
+          ls -lh /tmp/agent.zip
+
+      - name: Upload to S3
+        run: |
+          echo "Uploading to s3://${{ steps.resources.outputs.bucket }}/deploy/agent.zip ..."
+          aws s3 cp /tmp/agent.zip "s3://${{ steps.resources.outputs.bucket }}/deploy/agent.zip" --region us-east-1
+
+      - name: Deploy to EC2 via SSM
+        id: deploy
+        run: |
+          echo "Running SSM command on instance..."
+          CMD_JSON=$(cat <<'EOF'
+          {
+            "commands": [
+              "aws s3 cp s3://${{ steps.resources.outputs.bucket }}/deploy/agent.zip /tmp/agent.zip --region us-east-1",
+              "rm -rf /tmp/agent-extract && mkdir -p /tmp/agent-extract && cd /tmp/agent-extract && unzip -o -q /tmp/agent.zip",
+              "cd /tmp/agent-extract/agent && docker build -t bills-agent .",
+              "docker stop agent 2>/dev/null; docker rm agent 2>/dev/null; true",
+              "aws ssm get-parameters-by-path --path ${{ steps.resources.outputs.ssm_prefix }} --with-decryption --region us-east-1 --no-cli-pager --output json | python3 -c \"import json,sys; d=json.load(sys.stdin); [print(p.get('Name','').split('/')[-1]+'='+str(p.get('Value',''))) for p in d.get('Parameters',[])]\" > /tmp/agent.env",
+              "grep -q '^OPENAI_API_KEY=' /tmp/agent.env || (echo 'ERROR: OPENAI_API_KEY not in SSM at ${{ steps.resources.outputs.ssm_prefix }}' && exit 1)",
+              "docker run -d --name agent --restart unless-stopped --network host -e AWS_REGION=us-east-1 -e AWS_DEFAULT_REGION=us-east-1 --env-file /tmp/agent.env bills-agent",
+              "rm -f /tmp/agent.env",
+              "sleep 4 && curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/health"
+            ]
+          }
+          EOF
+          )
+          
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "${{ steps.resources.outputs.instance_id }}" \
+            --region us-east-1 \
+            --document-name "AWS-RunShellScript" \
+            --parameters "$CMD_JSON" \
+            --timeout-seconds 300 \
+            --output text \
+            --query 'Command.CommandId')
+          
+          echo "command_id=$CMD_ID" >> $GITHUB_OUTPUT
+          echo "Command ID: $CMD_ID"
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for SSM command to complete..."
+          for i in {1..12}; do
+            sleep 15
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "${{ steps.deploy.outputs.command_id }}" \
+              --instance-id "${{ steps.resources.outputs.instance_id }}" \
+              --region us-east-1 \
+              --query 'Status' \
+              --output text 2>/dev/null || echo "Unknown")
+            
+            echo "  Attempt $i/12 - Status: $STATUS"
+            
+            if [ "$STATUS" = "Success" ]; then
+              echo "Deployment successful!"
+              aws ssm get-command-invocation \
+                --command-id "${{ steps.deploy.outputs.command_id }}" \
+                --instance-id "${{ steps.resources.outputs.instance_id }}" \
+                --region us-east-1 \
+                --query 'StandardOutputContent' \
+                --output text
+              break
+            fi
+            
+            if [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ]; then
+              echo "Deployment failed!"
+              aws ssm get-command-invocation \
+                --command-id "${{ steps.deploy.outputs.command_id }}" \
+                --instance-id "${{ steps.resources.outputs.instance_id }}" \
+                --region us-east-1 \
+                --query '[StandardOutputContent,StandardErrorContent]' \
+                --output text
+              exit 1
+            fi
+          done
+
+      - name: Register with target group
+        run: |
+          echo "Registering instance with target group..."
+          aws elbv2 register-targets \
+            --target-group-arn "${{ steps.resources.outputs.target_group_arn }}" \
+            --targets Id="${{ steps.resources.outputs.instance_id }}",Port=8000 \
+            --region us-east-1 2>/dev/null || true
+          echo "Done! Health checks may take 1-2 minutes."
+          echo "Test at: https://agent.bills.bio/health"

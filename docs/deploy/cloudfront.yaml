@@ -1,0 +1,116 @@
+# CloudFront distribution for bills.bio: cache static assets, no cache for /api/chat*.
+# Uses DistributionConfig (required by AWS::CloudFront::Distribution).
+# Deploy: aws cloudformation deploy --template-file deploy/cloudfront.yaml --stack-name bills-bio-cdn \
+#   --parameter-overrides OriginDomainName=your-origin.example.com
+# Requires: AWS credentials configured (aws configure or env vars).
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFront CDN for bills.bio - cache static assets; no cache for agent chat/stream."
+
+Parameters:
+  OriginDomainName:
+    Type: String
+    Description: "Origin domain (e.g. Next.js host, ALB DNS, or xxx.vercel.app). No protocol."
+  OriginPath:
+    Type: String
+    Default: ""
+    Description: "Optional origin path (e.g. empty or /)."
+  ViewerProtocolPolicy:
+    Type: String
+    Default: "redirect-to-https"
+    AllowedValues:
+      - "allow-all"
+      - "redirect-to-https"
+      - "https-only"
+    Description: "Viewer protocol policy."
+  ACMCertificateArn:
+    Type: String
+    Default: ""
+    Description: "Optional. ACM certificate ARN (must be in us-east-1) for custom domain. Leave empty to use CloudFront default domain."
+  Aliases:
+    Type: String
+    Default: ""
+    Description: "Optional. Comma-separated CNAMEs (e.g. bills.bio,www.bills.bio). Requires ACMCertificateArn."
+
+Conditions:
+  UseCustomDomain: !Not [!Equals [!Ref ACMCertificateArn, ""]]
+  HasAliases: !Not [!Equals [!Ref Aliases, ""]]
+  HasOriginPath: !Not [!Equals [!Ref OriginPath, ""]]
+
+Resources:
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: "bills.bio CDN - static cache; no cache for /api/chat*"
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Aliases: !If [UseCustomDomain, !If [HasAliases, !Split [",", !Ref Aliases], !Ref "AWS::NoValue"], !Ref "AWS::NoValue"]
+        ViewerCertificate: !If
+          - UseCustomDomain
+          - AcmCertificateArn: !Ref ACMCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+        Origins:
+          - Id: Origin
+            DomainName: !Ref OriginDomainName
+            OriginPath: !If [HasOriginPath, !Ref OriginPath, !Ref "AWS::NoValue"]
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: Origin
+          ViewerProtocolPolicy: !Ref ViewerProtocolPolicy
+          CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+          Compress: true
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+        CacheBehaviors:
+          - PathPattern: "/api/chat*"
+            TargetOriginId: Origin
+            ViewerProtocolPolicy: !Ref ViewerProtocolPolicy
+            CachePolicyId: "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+            Compress: false
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+
+Outputs:
+  DistributionId:
+    Description: "CloudFront distribution ID"
+    Value: !Ref Distribution
+    Export:
+      Name: !Sub "${AWS::StackName}-DistributionId"
+  DistributionDomainName:
+    Description: "CloudFront domain name (e.g. xxx.cloudfront.net)"
+    Value: !GetAtt Distribution.DomainName
+    Export:
+      Name: !Sub "${AWS::StackName}-DomainName"
+  URL:
+    Description: "Distribution URL (HTTPS)"
+    Value: !Sub ["https://${Domain}", { Domain: !GetAtt Distribution.DomainName }]
+    Export:
+      Name: !Sub "${AWS::StackName}-URL"

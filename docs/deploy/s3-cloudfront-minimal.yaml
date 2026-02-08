@@ -1,0 +1,60 @@
+# Minimal S3 + CloudFront (one S3 origin only) to isolate EarlyValidation failure.
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Minimal S3 + CloudFront - single S3 origin with OAC"
+
+Parameters:
+  AgentOriginDomain:
+    Type: String
+    Default: "agent.bills.bio"
+
+Resources:
+  StaticBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "bills-bio-minimal-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  OriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: bills-bio-minimal-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+        Description: "OAC for minimal test"
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    DependsOn: OriginAccessControl
+    Properties:
+      Comment: "Minimal S3 + OAC test"
+      Enabled: true
+      Origins:
+        - Id: S3Origin
+          DomainName: !GetAtt StaticBucket.RegionalDomainName
+          S3OriginConfig:
+            OriginAccessIdentity: ""
+          OriginAccessControlId: !GetAtt OriginAccessControl.Id
+      DefaultCacheBehavior:
+        TargetOriginId: S3Origin
+        ViewerProtocolPolicy: redirect-http-to-https
+        CachePolicyId: "658327ea-f89d-4fab-a63d-7e88639e58f6"
+        Compress: true
+        AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+        CachedMethods:
+          - GET
+          - HEAD
+
+Outputs:
+  BucketName:
+    Value: !Ref StaticBucket
+  DistributionDomainName:
+    Value: !GetAtt Distribution.DomainName

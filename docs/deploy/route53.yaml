@@ -1,0 +1,67 @@
+# Route 53 DNS for bills.bio — A (alias) records pointing to CloudFront.
+# Deploy after CloudFront. Use the CloudFront stack output DistributionDomainName.
+# Requires: existing hosted zone for the domain (create in Route 53 or use --hosted-zone-id).
+#
+# Deploy:
+#   aws cloudformation deploy --template-file deploy/route53.yaml --stack-name bills-bio-dns \
+#     --parameter-overrides \
+#       HostedZoneId=Z123... \
+#       DomainName=bills.bio \
+#       CloudFrontDistributionDomainName=d123abc.cloudfront.net
+
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Route 53 DNS for bills.bio — apex and optional www alias to CloudFront."
+
+Parameters:
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: "Route 53 hosted zone ID for the domain (e.g. Z123...). Create the zone in Route 53 if needed."
+  DomainName:
+    Type: String
+    Description: "Apex domain name (e.g. bills.bio). No www."
+  CloudFrontDistributionDomainName:
+    Type: String
+    Description: "CloudFront distribution domain name (e.g. d123abc.cloudfront.net). From bills-bio-cdn stack output DistributionDomainName."
+  CreateWwwRecord:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+    Description: "Create www.DomainName A record (alias to CloudFront)."
+
+Conditions:
+  CreateWww: !Equals [!Ref CreateWwwRecord, "true"]
+
+Resources:
+  ApexRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !Ref CloudFrontDistributionDomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (fixed)
+        EvaluateTargetHealth: false
+
+  WwwRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: CreateWww
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Sub "www.${DomainName}"
+      Type: A
+      AliasTarget:
+        DNSName: !Ref CloudFrontDistributionDomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+        EvaluateTargetHealth: false
+
+Outputs:
+  ApexURL:
+    Description: "Apex URL (HTTPS)"
+    Value: !Sub "https://${DomainName}"
+  WwwURL:
+    Condition: CreateWww
+    Description: "WWW URL (HTTPS)"
+    Value: !Sub "https://www.${DomainName}"

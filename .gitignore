@@ -1,19 +1,20 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
-/.pnp
+node_modules
+.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build
+dist
 
 # misc
 .DS_Store
@@ -26,6 +27,36 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+.env.vercel
+
+# Python (agent)
+apps/agent/.env
+apps/agent/venv
+**/__pycache__
+**/.pytest_cache
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+.python-version
+
+# Agent data (using PostgreSQL now)
+apps/agent/data/*.json
+apps/agent/data/*.db
+
+# Google Calendar API credentials (NEVER commit these!)
+**/credentials.json
+**/token.pickle
+apps/agent/credentials.json
+apps/agent/token.pickle
+
+# chat conversations (file store)
+/data/conversations.json
+
+# tracking data (contains visitor IP addresses and sensitive info)
+/.tracking/
+apps/web/.tracking/
 
 # vercel
 .vercel
@@ -33,3 +64,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# deploy (generated IAM policy with account IDs)
+docs/deploy/cicd-iam-policy.json
+
+# workspace
+.turbo
+.pnpm-store

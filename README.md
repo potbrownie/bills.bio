@@ -1,91 +1,268 @@
-# Bill's Personal Portfolio Website
+# Bills.bio Monorepo
 
-A beautiful, modern personal website built with Next.js, TypeScript, and Tailwind CSS. This portfolio showcases a clean, minimalist design inspired by current UI/UX designer portfolio trends.
+A clean, modern personal website monorepo featuring a Next.js frontend and Python FastAPI agent backend.
 
-## Features
+## 📁 Project Structure
 
-- 🎨 **Modern Design**: Clean, minimalist interface with smooth animations
-- 📱 **Fully Responsive**: Optimized for all devices and screen sizes
-- 🌙 **Dark Mode Support**: Automatic dark mode based on system preferences
-- ⚡ **Performance**: Built with Next.js for optimal performance and SEO
-- 🎯 **Accessible**: Semantic HTML and proper ARIA labels
-- ✨ **Smooth Animations**: Subtle transitions and hover effects
+```
+bills.bio/
+├── apps/
+│   ├── web/              # Next.js frontend (TypeScript)
+│   │   ├── app/          # App router pages
+│   │   ├── components/   # React components
+│   │   ├── lib/          # Utilities & database
+│   │   └── scripts/      # Database scripts
+│   │
+│   └── agent/            # Python FastAPI backend
+│       ├── agent/        # Agent logic (runner, memory, tools)
+│       ├── db/           # PostgreSQL integration
+│       ├── extractors/   # Profile extraction
+│       ├── tools/        # Agent tools (search, profile)
+│       └── main.py       # FastAPI server
+│
+├── docs/                 # Documentation
+│   ├── archive/          # Historical docs
+│   └── deploy/           # Deployment configs
+│
+└── .github/              # CI/CD workflows
+```
 
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ installed
-- npm or yarn package manager
+- Node.js 18+
+- Python 3.12+
+- PostgreSQL 16+
 
 ### Installation
 
-1. Install dependencies:
+1. **Install dependencies**
+
 ```bash
+# Install all workspace dependencies
 npm install
+
+# Install Python agent dependencies
+cd apps/agent
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
 ```
 
-2. Run the development server:
+2. **Set up database**
+
 ```bash
+# Create PostgreSQL database
+createdb bills_bio
+
+# Initialize schema and seed data
+npm run db:init
+npm run db:seed
+```
+
+3. **Configure environment**
+
+```bash
+# Copy environment files
+cp apps/web/.env.example apps/web/.env.local
+cp apps/agent/.env.example apps/agent/.env
+
+# Edit with your API keys:
+# - OPENAI_API_KEY (required for agent)
+# - DATABASE_URL (PostgreSQL connection)
+# - SERPER_API_KEY (optional, for web search)
+```
+
+### Development
+
+Run both frontend and agent in separate terminals:
+
+```bash
+# Terminal 1: Next.js frontend (port 3002)
 npm run dev
+
+# Terminal 2: Python agent (port 8000)
+cd apps/agent
+source venv/bin/activate
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
+Visit:
+- **Website**: http://localhost:3002
+- **Dashboard**: http://localhost:3002/dashboard (password: `admin123`)
+- **Agent API**: http://localhost:8000/docs
 
-## Project Structure
+## 🏗️ Architecture
 
-```
-├── app/
-│   ├── layout.tsx      # Root layout with metadata
-│   ├── page.tsx        # Main landing page
-│   └── globals.css     # Global styles and Tailwind imports
-├── components/
-│   ├── Hero.tsx        # Hero section with introduction
-│   ├── ProjectGrid.tsx # Featured projects showcase
-│   ├── About.tsx       # About section with skills
-│   ├── Contact.tsx     # Contact form and information
-│   └── Footer.tsx      # Footer with social links
-└── public/             # Static assets
-```
+### Frontend (apps/web)
 
-## Customization
+**Tech Stack:**
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS
+- PostgreSQL (via node-postgres)
 
-### Update Personal Information
+**Features:**
+- Modern portfolio website
+- Real-time chat with AI agent
+- Admin dashboard with analytics
+- Visitor tracking & intelligence
+- Conversation history
 
-1. **Hero Section** (`components/Hero.tsx`):
-   - Change the name, title, and description
-   - Update social media links
+**Key Routes:**
+- `/` - Public landing page
+- `/dashboard` - Admin panel
+- `/api/chat/stream` - Chat proxy to agent
+- `/api/profiles` - Profile management
+- `/api/analytics` - Visitor analytics
 
-2. **Projects** (`components/ProjectGrid.tsx`):
-   - Replace the projects array with your own work
-   - Update project images, titles, and descriptions
+### Backend (apps/agent)
 
-3. **About Section** (`components/About.tsx`):
-   - Modify the bio text
-   - Update the skills array
+**Tech Stack:**
+- FastAPI
+- Python 3.12
+- OpenAI GPT-4
+- Mem0 (memory layer)
+- PostgreSQL
 
-4. **Contact Section** (`components/Contact.tsx`):
-   - Change the email address
-   - Update location and response time information
-   - Connect the form to your preferred backend service
+**Features:**
+- Conversational AI agent
+- Memory persistence across sessions
+- Web search capability
+- Profile extraction & management
+- Tool-based architecture
 
-5. **Metadata** (`app/layout.tsx`):
-   - Update the title and description for SEO
+**Endpoints:**
+- `GET /health` - Health check
+- `POST /chat` - Non-streaming chat
+- `POST /chat/stream` - SSE streaming chat
 
-## Build for Production
+## 📦 Workspaces
+
+This monorepo uses npm workspaces. Run commands in specific apps:
 
 ```bash
-npm run build
-npm start
+# Run in web app
+npm run <script> --workspace=apps/web
+
+# Run in agent app
+npm run <script> --workspace=apps/agent
 ```
 
-## Technologies Used
+Or use the root shortcuts:
 
-- **Next.js 16** - React framework with App Router
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **React 19** - UI library
+```bash
+npm run dev        # Start web dev server
+npm run build      # Build web app
+npm run db:init    # Initialize database
+npm run db:seed    # Seed database
+```
 
-## License
+## 🗄️ Database
 
-This project is open source and available for personal use.
+**Schema**: 4-table simplified architecture
+
+1. **profiles** - Bill + all visitors (JSONB data)
+2. **conversations** - Chat threads
+3. **messages** - Individual messages
+4. **sessions** - Analytics & tracking
+
+See `apps/web/scripts/schema-4-tables-final.sql` for complete schema.
+
+## 🔧 Development Scripts
+
+### Frontend (apps/web)
+
+```bash
+cd apps/web
+
+npm run dev           # Start Next.js dev server
+npm run build         # Build for production
+npm run start         # Start production server
+npm run lint          # Run ESLint
+
+npm run db:init       # Initialize database schema
+npm run db:seed       # Seed Bill's profile
+npm run db:reset      # Drop, recreate, and seed
+```
+
+### Backend (apps/agent)
+
+```bash
+cd apps/agent
+source venv/bin/activate
+
+# Start server
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Run tests (if available)
+pytest
+
+# Type checking
+mypy .
+```
+
+## 📖 Documentation
+
+- **Agent Architecture**: `docs/AGENT_ARCHITECTURE.md`
+- **Deployment Guide**: `docs/DEPLOYMENT_GUIDE.md`
+- **Tracking System**: `docs/TRACKING_README.md`, `docs/TRACKING_ARCHITECTURE.md`
+- **Code Guidelines**: `docs/CODE_GUIDELINES.md`
+
+## 🚢 Deployment
+
+### Quick Deploy
+
+**Frontend (Vercel):**
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Import this repository
+3. Add environment variables (see `DEPLOY_TO_VERCEL.md`)
+4. Deploy
+
+**Backend (AWS EC2):**
+1. Set up infrastructure: `docs/DEPLOYMENT_GUIDE.md`
+2. Add GitHub secrets for CI/CD
+3. Push to `main` → auto-deploys via GitHub Actions
+
+### CI/CD Status
+
+- ✅ **Frontend**: Vercel auto-deploys on push to `main`
+- ✅ **Backend**: GitHub Actions deploys to EC2 on push to `main`
+- 💰 **Cost**: ~$24-44/month
+
+### Documentation
+
+- **🚀 Quick Start**: `DEPLOY_TO_VERCEL.md` - Deploy frontend in 5 minutes
+- **📋 Full Guide**: `CICD_STATUS.md` - Complete deployment overview
+- **⚙️ CI/CD Setup**: `docs/CICD.md` - GitHub Actions workflows
+- **☁️ AWS Infrastructure**: `docs/DEPLOYMENT_GUIDE.md` - Backend setup
+- **🛠️ Manual Deploy**: `docs/deploy/README.md` - Manual scripts
+
+**Production checklist:**
+- [ ] Deploy to Vercel ([guide](DEPLOY_TO_VERCEL.md))
+- [ ] Set up GitHub secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`)
+- [ ] Configure SSM parameters (`OPENAI_API_KEY`)
+- [ ] Set environment variables in Vercel
+- [ ] Update `DASHBOARD_PASSWORD`
+- [ ] Configure PostgreSQL with connection pooling
+- [ ] Add custom domain in Vercel
+- [ ] Set up monitoring
+
+## 🤝 Contributing
+
+This is a personal project, but feel free to fork and adapt for your own use!
+
+## 📝 License
+
+Private - for personal use only.
+
+---
+
+**Built with:**
+- Next.js for the frontend
+- FastAPI for the agent backend
+- PostgreSQL for data persistence
+- Mem0 for memory management
+- OpenAI for AI capabilities
