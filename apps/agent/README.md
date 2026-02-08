@@ -434,3 +434,4 @@ logging.getLogger("agent").setLevel(logging.DEBUG)
 ## License
 
 Private - for personal use only.
+# Test deployment permissions
