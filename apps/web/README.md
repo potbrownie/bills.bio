@@ -272,3 +272,4 @@ uvicorn main:app --port 8000
 
 Private - for personal use only.
  
+# Test auto-deployment
