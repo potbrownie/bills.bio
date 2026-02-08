@@ -71,17 +71,17 @@ jobs:
       - name: Package agent
         run: |
           echo "Creating agent.zip from apps/agent/ ..."
-          cd apps/agent
-          zip -r -q /tmp/agent.zip . \
-            -x "venv/*" \
-            -x "eval/*" \
-            -x "scripts/*" \
-            -x "data/*" \
-            -x "*.pyc" \
-            -x "__pycache__/*" \
-            -x ".pytest_cache/*" \
-            -x "test_*.py" \
-            -x "*.log"
+          cd apps
+          zip -r -q /tmp/agent.zip agent \
+            -x "agent/venv/*" \
+            -x "agent/eval/*" \
+            -x "agent/scripts/*" \
+            -x "agent/data/*" \
+            -x "agent/*.pyc" \
+            -x "agent/__pycache__/*" \
+            -x "agent/.pytest_cache/*" \
+            -x "agent/test_*.py" \
+            -x "agent/*.log"
           echo "Package size:" && ls -lh /tmp/agent.zip
 
       - name: Upload to S3
